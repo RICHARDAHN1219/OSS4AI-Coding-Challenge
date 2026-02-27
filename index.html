@@ -4,15 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BlinkBudget — Understand Your Money Mood</title>
+  <!-- DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: { sans: ['"DM Sans"', 'sans-serif'] },
           colors: {
-            sage:    { 50:'#f4f7f2', 100:'#e6ede3', 200:'#ccdcc6', 300:'#a8c5a0', 400:'#7ea876', 500:'#5e8f56', 600:'#4a7244', 700:'#3b5b36', 800:'#31492d', 900:'#283d25' },
-            stone:   { 50:'#faf8f5', 100:'#f0ebe3', 200:'#dfd4c5', 300:'#c8b89f', 400:'#b09475', 500:'#9b7a59', 600:'#8b6647', 700:'#73523a', 800:'#5f4432', 900:'#4f382b' },
-            cream:   { DEFAULT:'#faf6ef', warm:'#f2ead9' },
+            terra:  { 50:'#fdf3f0', 100:'#fbe3db', 200:'#f8c5b4', 300:'#f39b80', 400:'#ee6e4a', 500:'#e35336', 600:'#c9401f', 700:'#a0522d', 800:'#7c3d1e', 900:'#5f2e14' },
+            sand:   { 50:'#fef8f0', 100:'#fdeedd', 200:'#fbd8b4', 300:'#f8bb80', 400:'#f4a460', 500:'#ef8a3a', 600:'#d97020', 700:'#b05618', 800:'#8a4012', 900:'#6b2f0d' },
+            sienna: { 50:'#f9f1ec', 100:'#f0ddd0', 200:'#ddb99a', 300:'#c88f64', 400:'#b5703e', 500:'#a0522d', 600:'#8a4224', 700:'#71331b', 800:'#582714', 900:'#421c0e' },
+            beige:  { DEFAULT:'#F5F5DC', dark:'#eaeac5', darker:'#d8d8a8' },
           },
         },
       },
@@ -20,197 +26,246 @@
   </script>
   <style>
     html { scroll-behavior: smooth; }
-    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; }
-    .faq-answer.open { max-height: 400px; padding-top: 0.75rem; padding-bottom: 0.75rem; }
+
+    /* ── FAQ accordion ── */
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; }
+    .faq-answer.open { max-height: 400px; padding-top: 0.75rem; padding-bottom: 1rem; }
     .faq-icon { transition: transform 0.3s ease; }
     .faq-icon.rotated { transform: rotate(45deg); }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.65s cubic-bezier(.22,.68,0,1.2), transform 0.65s cubic-bezier(.22,.68,0,1.2);
+    }
+    .reveal.from-left  { transform: translateX(-48px); }
+    .reveal.from-right { transform: translateX(48px); }
+    .reveal.visible    { opacity: 1; transform: translate(0, 0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+
+    /* ── Hero image hover tilt ── */
+    .tilt-card { transition: transform 0.4s ease, box-shadow 0.4s ease; }
+    .tilt-card:hover { transform: rotate(-1deg) scale(1.02); box-shadow: 0 24px 60px rgba(160,82,45,0.18); }
+
+    /* ── Floating animation ── */
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .float-anim { animation: float 3.5s ease-in-out infinite; }
+
+    /* ── Gradient headline ── */
+    .gradient-text {
+      background: linear-gradient(135deg, #e35336 0%, #f4a460 60%, #a0522d 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
   </style>
 </head>
 
-<body class="bg-cream text-stone-800 font-sans antialiased">
+<body class="bg-beige text-sienna-900 font-sans antialiased">
 
   <!-- ─── NAV ─── -->
-  <nav class="sticky top-0 z-50 bg-cream/90 backdrop-blur border-b border-sage-200">
+  <nav class="sticky top-0 z-50 bg-beige/90 backdrop-blur border-b border-sand-200">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="#" class="flex items-center gap-2">
-        <span class="w-8 h-8 rounded-full bg-sage-400 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.21 0-4 1.343-4 3s1.79 3 4 3 4 1.343 4 3-1.79 3-4 3m0-18v2m0 14v2"/></svg>
+      <a href="#" class="flex items-center gap-2.5">
+        <span class="w-9 h-9 rounded-xl bg-terra-500 flex items-center justify-center shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.21 0-4 1.343-4 3s1.79 3 4 3 4 1.343 4 3-1.79 3-4 3m0-18v2m0 14v2"/></svg>
         </span>
-        <span class="text-xl font-bold tracking-tight text-stone-800">BlinkBudget</span>
+        <span class="text-xl font-bold tracking-tight text-sienna-800">BlinkBudget</span>
       </a>
-      <ul class="hidden md:flex items-center gap-8 text-sm font-medium text-stone-600">
-        <li><a href="#features" class="hover:text-sage-600 transition-colors">Features</a></li>
-        <li><a href="#testimonials" class="hover:text-sage-600 transition-colors">Stories</a></li>
-        <li><a href="#pricing" class="hover:text-sage-600 transition-colors">Pricing</a></li>
-        <li><a href="#faq" class="hover:text-sage-600 transition-colors">FAQ</a></li>
+      <ul class="hidden md:flex items-center gap-8 text-sm font-medium text-sienna-600">
+        <li><a href="#features"     class="hover:text-terra-600 transition-colors">Features</a></li>
+        <li><a href="#testimonials" class="hover:text-terra-600 transition-colors">Stories</a></li>
+        <li><a href="#pricing"      class="hover:text-terra-600 transition-colors">Pricing</a></li>
+        <li><a href="#faq"          class="hover:text-terra-600 transition-colors">FAQ</a></li>
       </ul>
-      <a href="#pricing" class="hidden md:inline-flex items-center gap-1.5 bg-sage-500 hover:bg-sage-600 text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm transition-colors">
+      <a href="#pricing" class="hidden md:inline-flex items-center gap-1.5 bg-terra-500 hover:bg-terra-600 text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm transition-all hover:-translate-y-0.5">
         Get Started
       </a>
     </div>
   </nav>
 
   <!-- ─── HERO ─── -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-sage-50 via-cream to-stone-50">
-    <!-- decorative blobs -->
-    <div class="absolute -top-32 -right-32 w-[500px] h-[500px] bg-sage-200 rounded-full opacity-40 blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-24 -left-24 w-[380px] h-[380px] bg-stone-200 rounded-full opacity-30 blur-3xl pointer-events-none"></div>
+  <section class="relative overflow-hidden bg-gradient-to-br from-beige via-sand-50 to-terra-50 min-h-screen flex items-center">
+    <div class="absolute -top-40 -right-40 w-[560px] h-[560px] bg-terra-200 rounded-full opacity-30 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -left-32 w-[420px] h-[420px] bg-sand-200 rounded-full opacity-30 blur-3xl pointer-events-none"></div>
 
-    <div class="relative max-w-6xl mx-auto px-6 py-28 md:py-36 flex flex-col items-center text-center">
-      <span class="inline-block bg-sage-100 text-sage-700 text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-6">Emotional Finance Intelligence</span>
-      <h1 class="text-5xl md:text-7xl font-extrabold leading-tight tracking-tight text-stone-800 mb-6">
-        Understand Your<br/>
-        <span class="text-sage-500">Money Mood</span>
-      </h1>
-      <p class="max-w-2xl text-lg md:text-xl text-stone-500 leading-relaxed mb-10">
-        BlinkBudget spots stress splurges, celebratory overspends, and emotional patterns in your transactions — then gently steps in before your feelings drain your savings.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4">
-        <a href="#pricing" class="bg-sage-500 hover:bg-sage-600 text-white font-semibold px-8 py-4 rounded-full shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5">
-          Start for Free
-        </a>
-        <a href="#features" class="bg-white/70 hover:bg-white text-stone-700 font-semibold px-8 py-4 rounded-full border border-stone-200 shadow-sm transition-all hover:shadow">
-          See How It Works
-        </a>
-      </div>
-      <!-- hero visual -->
-      <div class="mt-20 w-full max-w-4xl mx-auto bg-white/60 backdrop-blur rounded-3xl border border-sage-100 shadow-xl p-6 md:p-10">
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <p class="text-xs text-stone-400 uppercase tracking-wider font-medium">This week's mood</p>
-            <p class="text-2xl font-bold text-stone-700 mt-0.5">Stressed 😰 → Calm 😌</p>
+    <div class="relative max-w-6xl mx-auto px-6 py-24 w-full">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+        <!-- Left: copy -->
+        <div>
+          <span class="reveal inline-block bg-terra-100 text-terra-700 text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-6">Emotional Finance Intelligence</span>
+          <h1 class="reveal reveal-delay-1 text-5xl md:text-6xl xl:text-7xl font-extrabold leading-[1.08] tracking-tight text-sienna-900 mb-6">
+            Understand<br/>Your
+            <span class="gradient-text"> Money Mood</span>
+          </h1>
+          <p class="reveal reveal-delay-2 max-w-xl text-lg text-sienna-600 leading-relaxed mb-10">
+            BlinkBudget spots stress splurges, celebratory overspends, and emotional patterns in your transactions — then gently steps in before your feelings drain your savings.
+          </p>
+          <div class="reveal reveal-delay-3 flex flex-col sm:flex-row gap-4 mb-12">
+            <a href="#pricing" class="bg-terra-500 hover:bg-terra-600 text-white font-semibold px-8 py-4 rounded-full shadow-md transition-all hover:shadow-xl hover:-translate-y-1 text-center">Start for Free</a>
+            <a href="#features" class="bg-white/80 hover:bg-white text-sienna-700 font-semibold px-8 py-4 rounded-full border border-sand-300 shadow-sm transition-all hover:shadow text-center">See How It Works</a>
           </div>
-          <span class="bg-sage-100 text-sage-700 text-sm font-semibold px-4 py-1.5 rounded-full">+$142 saved</span>
-        </div>
-        <div class="grid grid-cols-7 gap-2 mb-6">
-          {#each}
-          <!-- mood bar chart mock -->
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="w-full rounded-full bg-stone-100 overflow-hidden" style="height:80px">
-              <div class="w-full bg-sage-300 rounded-full" style="height:30%"></div>
+          <div class="reveal reveal-delay-4 flex items-center gap-4">
+            <div class="flex -space-x-2.5">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=48&h=48&fit=crop&crop=faces&q=80" class="w-9 h-9 rounded-full border-2 border-beige object-cover" alt="" />
+              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=48&h=48&fit=crop&crop=faces&q=80" class="w-9 h-9 rounded-full border-2 border-beige object-cover" alt="" />
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=48&h=48&fit=crop&crop=faces&q=80" class="w-9 h-9 rounded-full border-2 border-beige object-cover" alt="" />
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=48&h=48&fit=crop&crop=faces&q=80" class="w-9 h-9 rounded-full border-2 border-beige object-cover" alt="" />
             </div>
-            <span class="text-[10px] text-stone-400">Mon</span>
-          </div>
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="w-full rounded-full bg-stone-100 overflow-hidden" style="height:80px">
-              <div class="w-full bg-stone-300 rounded-full" style="height:70%"></div>
-            </div>
-            <span class="text-[10px] text-stone-400">Tue</span>
-          </div>
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="w-full rounded-full bg-stone-100 overflow-hidden" style="height:80px">
-              <div class="w-full bg-stone-400 rounded-full" style="height:85%"></div>
-            </div>
-            <span class="text-[10px] text-stone-400">Wed</span>
-          </div>
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="w-full rounded-full bg-stone-100 overflow-hidden" style="height:80px">
-              <div class="w-full bg-stone-300 rounded-full" style="height:60%"></div>
-            </div>
-            <span class="text-[10px] text-stone-400">Thu</span>
-          </div>
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="w-full rounded-full bg-stone-100 overflow-hidden" style="height:80px">
-              <div class="w-full bg-sage-300 rounded-full" style="height:40%"></div>
-            </div>
-            <span class="text-[10px] text-stone-400">Fri</span>
-          </div>
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="w-full rounded-full bg-stone-100 overflow-hidden" style="height:80px">
-              <div class="w-full bg-sage-400 rounded-full" style="height:25%"></div>
-            </div>
-            <span class="text-[10px] text-stone-400">Sat</span>
-          </div>
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="w-full rounded-full bg-stone-100 overflow-hidden" style="height:80px">
-              <div class="w-full bg-sage-300 rounded-full" style="height:20%"></div>
-            </div>
-            <span class="text-[10px] text-stone-400">Sun</span>
+            <div class="text-sm text-sienna-600"><span class="font-bold text-sienna-800">2,400+</span> people understand their money mood</div>
           </div>
         </div>
-        <div class="flex gap-4 flex-wrap text-xs text-stone-500">
-          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-sage-300 inline-block"></span> Calm spending</span>
-          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-stone-300 inline-block"></span> Elevated spending</span>
-          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-stone-400 inline-block"></span> Stress spending</span>
+
+        <!-- Right: photo collage -->
+        <div class="reveal from-right relative hidden lg:block">
+          <div class="tilt-card relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/60" style="aspect-ratio:4/5; max-height:560px">
+            <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=700&q=80" alt="Person reviewing finances" class="w-full h-full object-cover" />
+            <div class="absolute bottom-5 left-5 right-5">
+              <div class="bg-white/90 backdrop-blur rounded-2xl px-4 py-3 shadow-lg flex items-center justify-between">
+                <div>
+                  <p class="text-[11px] text-sienna-400 uppercase tracking-wide font-medium">This week</p>
+                  <p class="text-sm font-bold text-sienna-800">Stress → Calm 😌</p>
+                </div>
+                <span class="bg-terra-100 text-terra-700 text-xs font-bold px-3 py-1 rounded-full">+$142 saved</span>
+              </div>
+            </div>
+          </div>
+          <!-- floating wearable card -->
+          <div class="float-anim absolute -left-12 top-10 w-44 bg-white rounded-2xl shadow-xl border border-sand-100 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=200&h=120&fit=crop&q=80" alt="Smart watch" class="w-full h-24 object-cover" />
+            <div class="px-3 py-2">
+              <p class="text-[10px] text-sienna-400 font-medium uppercase tracking-wide">Heart Rate</p>
+              <p class="text-sm font-bold text-sienna-800">72 bpm · Calm</p>
+            </div>
+          </div>
+          <!-- floating nudge pill -->
+          <div class="float-anim absolute -right-8 top-1/3 bg-terra-500 text-white rounded-2xl shadow-xl px-4 py-3 w-40" style="animation-delay:1.2s">
+            <p class="text-[10px] uppercase tracking-wide opacity-75 mb-0.5">Impulse alert</p>
+            <p class="text-xs font-bold leading-snug">Stress detected — pause &amp; breathe?</p>
+          </div>
+          <!-- floating photo -->
+          <div class="float-anim absolute -bottom-8 -left-8 w-36 rounded-2xl overflow-hidden shadow-xl border-2 border-white/60" style="animation-delay:0.6s">
+            <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=200&h=200&fit=crop&q=80" alt="Relaxed person at cafe" class="w-full h-36 object-cover" />
+          </div>
         </div>
+
       </div>
     </div>
   </section>
 
+  <!-- ─── TRUST STRIP ─── -->
+  <div class="bg-sienna-800 py-5">
+    <div class="max-w-6xl mx-auto px-6 flex flex-wrap justify-center gap-x-12 gap-y-3 text-sienna-300 text-sm font-medium">
+      <span>✦ 12,000+ Banks Supported</span>
+      <span>✦ SOC 2 Type II Certified</span>
+      <span>✦ Apple Watch &amp; Garmin Sync</span>
+      <span>✦ No data sold. Ever.</span>
+      <span>✦ Cancel Anytime</span>
+    </div>
+  </div>
+
   <!-- ─── FEATURES ─── -->
   <section id="features" class="bg-white py-24 md:py-32">
     <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-16">
-        <span class="inline-block text-sage-600 text-sm font-semibold uppercase tracking-widest mb-3">How It Works</span>
-        <h2 class="text-4xl md:text-5xl font-bold text-stone-800 mb-4">Finance that feels human</h2>
-        <p class="max-w-xl mx-auto text-stone-500 text-lg">No rigid budgets. Just honest insights and a gentle hand on your shoulder when it matters.</p>
+      <div class="text-center mb-16 reveal">
+        <span class="inline-block text-terra-600 text-sm font-semibold uppercase tracking-widest mb-3">How It Works</span>
+        <h2 class="text-4xl md:text-5xl font-bold text-sienna-900 mb-4">Finance that feels human</h2>
+        <p class="max-w-xl mx-auto text-sienna-500 text-lg">No rigid budgets. Just honest insights and a gentle hand on your shoulder when it matters.</p>
       </div>
-
       <div class="grid md:grid-cols-3 gap-8">
-        <!-- card 1 -->
-        <div class="group bg-sage-50 hover:bg-sage-100/70 rounded-3xl p-8 border border-sage-100 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-sage-200 flex items-center justify-center mb-6 group-hover:bg-sage-300 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sage-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+
+        <div class="reveal reveal-delay-1 group bg-terra-50 hover:bg-terra-100/60 rounded-3xl p-8 border border-terra-100 transition-all hover:-translate-y-1 hover:shadow-lg">
+          <div class="w-12 h-12 rounded-2xl bg-terra-200 flex items-center justify-center mb-6 group-hover:bg-terra-300 transition-colors">
+            <svg class="w-6 h-6 text-terra-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
           </div>
-          <h3 class="text-xl font-bold text-stone-800 mb-3">Mood-Spending Patterns</h3>
-          <p class="text-stone-500 leading-relaxed">Automatically detects correlations between your emotional state and spending spikes — without you lifting a finger.</p>
+          <h3 class="text-xl font-bold text-sienna-900 mb-3">Mood-Spending Patterns</h3>
+          <p class="text-sienna-500 leading-relaxed">Automatically detects correlations between your emotional state and spending spikes — without you lifting a finger.</p>
         </div>
-        <!-- card 2 -->
-        <div class="group bg-stone-50 hover:bg-stone-100/70 rounded-3xl p-8 border border-stone-100 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-stone-200 flex items-center justify-center mb-6 group-hover:bg-stone-300 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+
+        <div class="reveal reveal-delay-2 group bg-sand-50 hover:bg-sand-100/60 rounded-3xl p-8 border border-sand-100 transition-all hover:-translate-y-1 hover:shadow-lg">
+          <div class="w-12 h-12 rounded-2xl bg-sand-200 flex items-center justify-center mb-6 group-hover:bg-sand-300 transition-colors">
+            <svg class="w-6 h-6 text-sand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           </div>
-          <h3 class="text-xl font-bold text-stone-800 mb-3">Gentle Nudges</h3>
-          <p class="text-stone-500 leading-relaxed">Before an impulse purchase completes, get a calm, non-judgmental check-in: "You've been stressed this week — still want to buy this?"</p>
+          <h3 class="text-xl font-bold text-sienna-900 mb-3">Gentle Nudges</h3>
+          <p class="text-sienna-500 leading-relaxed">Before an impulse purchase completes, get a calm, non-judgmental check-in: "You've been stressed this week — still want to buy this?"</p>
         </div>
-        <!-- card 3 -->
-        <div class="group bg-amber-50 hover:bg-amber-100/60 rounded-3xl p-8 border border-amber-100 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center mb-6 group-hover:bg-amber-200 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+
+        <div class="reveal reveal-delay-3 group bg-sienna-50 hover:bg-sienna-100/50 rounded-3xl p-8 border border-sienna-100 transition-all hover:-translate-y-1 hover:shadow-lg">
+          <div class="w-12 h-12 rounded-2xl bg-sienna-200 flex items-center justify-center mb-6 group-hover:bg-sienna-300 transition-colors">
+            <svg class="w-6 h-6 text-sienna-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
           </div>
-          <h3 class="text-xl font-bold text-stone-800 mb-3">Wearable Integration</h3>
-          <p class="text-stone-500 leading-relaxed">Optionally sync with fitness trackers to layer real biometric data — heart rate, sleep, stress scores — onto your spending timeline.</p>
+          <h3 class="text-xl font-bold text-sienna-900 mb-3">Wearable Integration</h3>
+          <p class="text-sienna-500 leading-relaxed">Optionally sync with fitness trackers to layer real biometric data — heart rate, sleep, stress scores — onto your spending timeline.</p>
         </div>
-        <!-- card 4 -->
-        <div class="group bg-teal-50 hover:bg-teal-100/60 rounded-3xl p-8 border border-teal-100 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-teal-100 flex items-center justify-center mb-6 group-hover:bg-teal-200 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-teal-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+
+        <div class="reveal reveal-delay-1 group bg-terra-50 hover:bg-terra-100/60 rounded-3xl p-8 border border-terra-100 transition-all hover:-translate-y-1 hover:shadow-lg">
+          <div class="w-12 h-12 rounded-2xl bg-terra-200 flex items-center justify-center mb-6 group-hover:bg-terra-300 transition-colors">
+            <svg class="w-6 h-6 text-terra-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           </div>
-          <h3 class="text-xl font-bold text-stone-800 mb-3">Private by Design</h3>
-          <p class="text-stone-500 leading-relaxed">All emotional pattern data stays on-device. We never sell insights about your mental state — your moods are yours alone.</p>
+          <h3 class="text-xl font-bold text-sienna-900 mb-3">Private by Design</h3>
+          <p class="text-sienna-500 leading-relaxed">All emotional pattern data stays on-device. We never sell insights about your mental state — your moods are yours alone.</p>
         </div>
-        <!-- card 5 -->
-        <div class="group bg-rose-50 hover:bg-rose-100/60 rounded-3xl p-8 border border-rose-100 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center mb-6 group-hover:bg-rose-200 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+
+        <div class="reveal reveal-delay-2 group bg-sand-50 hover:bg-sand-100/60 rounded-3xl p-8 border border-sand-100 transition-all hover:-translate-y-1 hover:shadow-lg">
+          <div class="w-12 h-12 rounded-2xl bg-sand-200 flex items-center justify-center mb-6 group-hover:bg-sand-300 transition-colors">
+            <svg class="w-6 h-6 text-sand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
           </div>
-          <h3 class="text-xl font-bold text-stone-800 mb-3">Weekly Insight Reports</h3>
-          <p class="text-stone-500 leading-relaxed">A calm Sunday digest that shows what your week looked like emotionally — and where your money followed your feelings.</p>
+          <h3 class="text-xl font-bold text-sienna-900 mb-3">Weekly Insight Reports</h3>
+          <p class="text-sienna-500 leading-relaxed">A calm Sunday digest that shows what your week looked like emotionally — and where your money followed your feelings.</p>
         </div>
-        <!-- card 6 -->
-        <div class="group bg-violet-50 hover:bg-violet-100/60 rounded-3xl p-8 border border-violet-100 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-violet-100 flex items-center justify-center mb-6 group-hover:bg-violet-200 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+
+        <div class="reveal reveal-delay-3 group bg-sienna-50 hover:bg-sienna-100/50 rounded-3xl p-8 border border-sienna-100 transition-all hover:-translate-y-1 hover:shadow-lg">
+          <div class="w-12 h-12 rounded-2xl bg-sienna-200 flex items-center justify-center mb-6 group-hover:bg-sienna-300 transition-colors">
+            <svg class="w-6 h-6 text-sienna-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           </div>
-          <h3 class="text-xl font-bold text-stone-800 mb-3">Freelancer Mode</h3>
-          <p class="text-stone-500 leading-relaxed">Adjusts for irregular income cycles — tracks anxiety during slow months and victory spending post-paycheck to keep you grounded.</p>
+          <h3 class="text-xl font-bold text-sienna-900 mb-3">Freelancer Mode</h3>
+          <p class="text-sienna-500 leading-relaxed">Adjusts for irregular income cycles — tracks anxiety during slow months and victory spending post-paycheck to keep you grounded.</p>
         </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PHOTO BREAK ─── -->
+  <section class="bg-beige py-20">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-3 gap-5 reveal">
+        <div class="md:col-span-2 rounded-3xl overflow-hidden h-72 shadow-lg tilt-card">
+          <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=900&h=500&fit=crop&q=80" alt="People working relaxed" class="w-full h-full object-cover" />
+        </div>
+        <div class="flex flex-col gap-5">
+          <div class="rounded-3xl overflow-hidden flex-1 shadow-lg tilt-card min-h-[128px]">
+            <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop&q=80" alt="Analytics" class="w-full h-full object-cover" />
+          </div>
+          <div class="rounded-3xl overflow-hidden flex-1 shadow-lg tilt-card min-h-[128px]">
+            <img src="https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=400&h=250&fit=crop&q=80" alt="Wearable" class="w-full h-full object-cover" />
+          </div>
+        </div>
+      </div>
+      <div class="mt-10 text-center reveal">
+        <p class="text-2xl md:text-3xl font-bold text-sienna-800 max-w-2xl mx-auto leading-snug">"Budgeting apps ignored <em>why</em> I spent. BlinkBudget finally showed me <em>when</em> and <em>how</em>."</p>
+        <p class="text-sienna-500 mt-3 text-sm font-medium">— Alex T., Freelance Developer</p>
       </div>
     </div>
   </section>
 
   <!-- ─── TESTIMONIALS ─── -->
-  <section id="testimonials" class="bg-cream py-24 md:py-32">
+  <section id="testimonials" class="bg-white py-24 md:py-32">
     <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-16">
-        <span class="inline-block text-sage-600 text-sm font-semibold uppercase tracking-widest mb-3">Real Stories</span>
-        <h2 class="text-4xl md:text-5xl font-bold text-stone-800 mb-4">They finally get their money</h2>
-        <p class="max-w-xl mx-auto text-stone-500 text-lg">From stressed freelancers to urban professionals — BlinkBudget changed how they relate to money.</p>
+      <div class="text-center mb-16 reveal">
+        <span class="inline-block text-terra-600 text-sm font-semibold uppercase tracking-widest mb-3">Real Stories</span>
+        <h2 class="text-4xl md:text-5xl font-bold text-sienna-900 mb-4">They finally get their money</h2>
+        <p class="max-w-xl mx-auto text-sienna-500 text-lg">From stressed freelancers to urban professionals — BlinkBudget changed how they relate to money.</p>
       </div>
 
       <div class="grid md:grid-cols-3 gap-8">
-        <!-- testimonial 1 -->
-        <div class="bg-white rounded-3xl p-8 shadow-sm border border-sage-100 flex flex-col">
+        <div class="reveal reveal-delay-1 bg-terra-50 rounded-3xl p-8 border border-terra-100 flex flex-col hover:shadow-lg transition-shadow">
           <div class="flex gap-1 mb-5">
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -218,18 +273,17 @@
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           </div>
-          <p class="text-stone-600 leading-relaxed flex-1">"I used to stress-shop every time a client was late on payment. BlinkBudget actually showed me the pattern — I spent $400 more during high-stress weeks. Now I pause and breathe instead."</p>
-          <div class="flex items-center gap-3 mt-6 pt-6 border-t border-stone-100">
-            <div class="w-10 h-10 rounded-full bg-sage-200 flex items-center justify-center text-sage-700 font-bold text-sm">MK</div>
+          <p class="text-sienna-600 leading-relaxed flex-1">"I used to stress-shop every time a client was late on payment. BlinkBudget actually showed me the pattern — I spent $400 more during high-stress weeks. Now I pause and breathe instead."</p>
+          <div class="flex items-center gap-3 mt-6 pt-6 border-t border-terra-100">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=48&h=48&fit=crop&crop=faces&q=80" class="w-11 h-11 rounded-full object-cover" alt="Maya K." />
             <div>
-              <p class="font-semibold text-stone-800 text-sm">Maya K.</p>
-              <p class="text-stone-400 text-xs">Freelance UX Designer, Chicago</p>
+              <p class="font-semibold text-sienna-900 text-sm">Maya K.</p>
+              <p class="text-sienna-400 text-xs">Freelance UX Designer, Chicago</p>
             </div>
           </div>
         </div>
 
-        <!-- testimonial 2 -->
-        <div class="bg-white rounded-3xl p-8 shadow-sm border border-sage-100 flex flex-col">
+        <div class="reveal reveal-delay-2 bg-sand-50 rounded-3xl p-8 border border-sand-100 flex flex-col hover:shadow-lg transition-shadow">
           <div class="flex gap-1 mb-5">
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -237,18 +291,17 @@
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           </div>
-          <p class="text-stone-600 leading-relaxed flex-1">"Every other budgeting app made me feel guilty. BlinkBudget just explains. The weekly digest feels like journaling, but for your wallet. I've saved $600 in three months without deprivation."</p>
-          <div class="flex items-center gap-3 mt-6 pt-6 border-t border-stone-100">
-            <div class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center text-stone-600 font-bold text-sm">JL</div>
+          <p class="text-sienna-600 leading-relaxed flex-1">"Every other budgeting app made me feel guilty. BlinkBudget just explains. The weekly digest feels like journaling, but for your wallet. I've saved $600 in three months without deprivation."</p>
+          <div class="flex items-center gap-3 mt-6 pt-6 border-t border-sand-100">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=48&h=48&fit=crop&crop=faces&q=80" class="w-11 h-11 rounded-full object-cover" alt="Jordan L." />
             <div>
-              <p class="font-semibold text-stone-800 text-sm">Jordan L.</p>
-              <p class="text-stone-400 text-xs">Product Manager, Austin</p>
+              <p class="font-semibold text-sienna-900 text-sm">Jordan L.</p>
+              <p class="text-sienna-400 text-xs">Product Manager, Austin</p>
             </div>
           </div>
         </div>
 
-        <!-- testimonial 3 -->
-        <div class="bg-white rounded-3xl p-8 shadow-sm border border-sage-100 flex flex-col">
+        <div class="reveal reveal-delay-3 bg-sienna-50 rounded-3xl p-8 border border-sienna-100 flex flex-col hover:shadow-lg transition-shadow">
           <div class="flex gap-1 mb-5">
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -256,12 +309,12 @@
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
             <svg class="w-4 h-4 text-amber-400 fill-amber-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           </div>
-          <p class="text-stone-600 leading-relaxed flex-1">"As someone with ADHD who overspendes post-dopamine crashes, this app is genuinely life-changing. The wearable sync caught what I could never catch myself. Deeply thoughtful product."</p>
-          <div class="flex items-center gap-3 mt-6 pt-6 border-t border-stone-100">
-            <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-sm">SR</div>
+          <p class="text-sienna-600 leading-relaxed flex-1">"As someone with ADHD who overspendes post-dopamine crashes, this app is genuinely life-changing. The wearable sync caught what I could never catch myself. Deeply thoughtful product."</p>
+          <div class="flex items-center gap-3 mt-6 pt-6 border-t border-sienna-100">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=48&h=48&fit=crop&crop=faces&q=80" class="w-11 h-11 rounded-full object-cover" alt="Sofia R." />
             <div>
-              <p class="font-semibold text-stone-800 text-sm">Sofia R.</p>
-              <p class="text-stone-400 text-xs">Content Creator, New York</p>
+              <p class="font-semibold text-sienna-900 text-sm">Sofia R.</p>
+              <p class="text-sienna-400 text-xs">Content Creator, New York</p>
             </div>
           </div>
         </div>
@@ -270,133 +323,130 @@
   </section>
 
   <!-- ─── PRICING ─── -->
-  <section id="pricing" class="bg-white py-24 md:py-32">
+  <section id="pricing" class="bg-beige py-24 md:py-32">
     <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-16">
-        <span class="inline-block text-sage-600 text-sm font-semibold uppercase tracking-widest mb-3">Plans</span>
-        <h2 class="text-4xl md:text-5xl font-bold text-stone-800 mb-4">Simple, honest pricing</h2>
-        <p class="max-w-xl mx-auto text-stone-500 text-lg">Start free and grow at your own pace — just like your financial wellness.</p>
+      <div class="text-center mb-16 reveal">
+        <span class="inline-block text-terra-600 text-sm font-semibold uppercase tracking-widest mb-3">Plans</span>
+        <h2 class="text-4xl md:text-5xl font-bold text-sienna-900 mb-4">Simple, honest pricing</h2>
+        <p class="max-w-xl mx-auto text-sienna-500 text-lg">Start free and grow at your own pace — just like your financial wellness.</p>
       </div>
 
       <div class="grid md:grid-cols-3 gap-8 items-stretch">
-        <!-- free -->
-        <div class="flex flex-col rounded-3xl border border-stone-200 p-8 bg-stone-50">
-          <p class="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">Free</p>
-          <p class="text-5xl font-extrabold text-stone-800 mb-1">$0</p>
-          <p class="text-stone-400 text-sm mb-8">Forever free</p>
+        <div class="reveal reveal-delay-1 flex flex-col rounded-3xl border border-sienna-200 p-8 bg-white">
+          <p class="text-sm font-semibold text-sienna-400 uppercase tracking-wider mb-2">Free</p>
+          <p class="text-5xl font-extrabold text-sienna-900 mb-1">$0</p>
+          <p class="text-sienna-400 text-sm mb-8">Forever free</p>
           <ul class="space-y-3 flex-1 mb-8">
-            <li class="flex items-start gap-2.5 text-stone-600 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Connect 1 bank account</li>
-            <li class="flex items-start gap-2.5 text-stone-600 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Basic mood-spending chart</li>
-            <li class="flex items-start gap-2.5 text-stone-600 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Weekly digest (last 4 weeks)</li>
-            <li class="flex items-start gap-2.5 text-stone-300 text-sm line-through"><svg class="w-5 h-5 text-stone-300 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Wearable integration</li>
-            <li class="flex items-start gap-2.5 text-stone-300 text-sm line-through"><svg class="w-5 h-5 text-stone-300 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Impulse purchase nudges</li>
-            <li class="flex items-start gap-2.5 text-stone-300 text-sm line-through"><svg class="w-5 h-5 text-stone-300 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Freelancer Mode</li>
+            <li class="flex items-start gap-2.5 text-sienna-600 text-sm"><svg class="w-5 h-5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Connect 1 bank account</li>
+            <li class="flex items-start gap-2.5 text-sienna-600 text-sm"><svg class="w-5 h-5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Basic mood-spending chart</li>
+            <li class="flex items-start gap-2.5 text-sienna-600 text-sm"><svg class="w-5 h-5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Weekly digest (last 4 weeks)</li>
+            <li class="flex items-start gap-2.5 text-sienna-200 text-sm line-through"><svg class="w-5 h-5 text-sienna-200 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Wearable integration</li>
+            <li class="flex items-start gap-2.5 text-sienna-200 text-sm line-through"><svg class="w-5 h-5 text-sienna-200 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Impulse purchase nudges</li>
+            <li class="flex items-start gap-2.5 text-sienna-200 text-sm line-through"><svg class="w-5 h-5 text-sienna-200 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Freelancer Mode</li>
           </ul>
-          <a href="#" class="w-full text-center bg-white border border-stone-300 hover:border-sage-400 text-stone-700 font-semibold py-3.5 rounded-2xl transition-colors">Get Started Free</a>
+          <a href="#" class="w-full text-center bg-beige border border-sienna-200 hover:border-terra-400 text-sienna-700 font-semibold py-3.5 rounded-2xl transition-colors">Get Started Free</a>
         </div>
 
-        <!-- pro — highlighted -->
-        <div class="flex flex-col rounded-3xl border-2 border-sage-400 p-8 bg-sage-50 shadow-xl relative">
-          <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-sage-500 text-white text-xs font-bold uppercase tracking-widest px-5 py-1.5 rounded-full shadow">Most Popular</span>
-          <p class="text-sm font-semibold text-sage-600 uppercase tracking-wider mb-2">Aware</p>
-          <p class="text-5xl font-extrabold text-stone-800 mb-1">$9<span class="text-2xl font-medium text-stone-400">/mo</span></p>
-          <p class="text-stone-400 text-sm mb-8">Billed monthly · cancel anytime</p>
+        <div class="reveal reveal-delay-2 flex flex-col rounded-3xl border-2 border-terra-400 p-8 bg-terra-500 shadow-2xl relative">
+          <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-sienna-800 text-white text-xs font-bold uppercase tracking-widest px-5 py-1.5 rounded-full shadow">Most Popular</span>
+          <p class="text-sm font-semibold text-terra-100 uppercase tracking-wider mb-2">Aware</p>
+          <p class="text-5xl font-extrabold text-white mb-1">$9<span class="text-2xl font-medium text-terra-200">/mo</span></p>
+          <p class="text-terra-200 text-sm mb-8">Billed monthly · cancel anytime</p>
           <ul class="space-y-3 flex-1 mb-8">
-            <li class="flex items-start gap-2.5 text-stone-700 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Connect up to 5 accounts</li>
-            <li class="flex items-start gap-2.5 text-stone-700 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Full mood-spending analytics</li>
-            <li class="flex items-start gap-2.5 text-stone-700 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Wearable integration (1 device)</li>
-            <li class="flex items-start gap-2.5 text-stone-700 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Impulse purchase nudges</li>
-            <li class="flex items-start gap-2.5 text-stone-700 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>12-month history</li>
-            <li class="flex items-start gap-2.5 text-stone-300 text-sm line-through"><svg class="w-5 h-5 text-stone-300 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Freelancer Mode</li>
+            <li class="flex items-start gap-2.5 text-white text-sm"><svg class="w-5 h-5 text-terra-200 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Connect up to 5 accounts</li>
+            <li class="flex items-start gap-2.5 text-white text-sm"><svg class="w-5 h-5 text-terra-200 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Full mood-spending analytics</li>
+            <li class="flex items-start gap-2.5 text-white text-sm"><svg class="w-5 h-5 text-terra-200 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Wearable integration (1 device)</li>
+            <li class="flex items-start gap-2.5 text-white text-sm"><svg class="w-5 h-5 text-terra-200 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Impulse purchase nudges</li>
+            <li class="flex items-start gap-2.5 text-white text-sm"><svg class="w-5 h-5 text-terra-200 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>12-month history</li>
+            <li class="flex items-start gap-2.5 text-terra-200/60 text-sm line-through"><svg class="w-5 h-5 text-terra-200/40 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Freelancer Mode</li>
           </ul>
-          <a href="#" class="w-full text-center bg-sage-500 hover:bg-sage-600 text-white font-semibold py-3.5 rounded-2xl transition-colors shadow">Start 14-day Free Trial</a>
+          <a href="#" class="w-full text-center bg-white text-terra-600 hover:bg-beige font-bold py-3.5 rounded-2xl transition-colors shadow-lg">Start 14-day Free Trial</a>
         </div>
 
-        <!-- freelancer -->
-        <div class="flex flex-col rounded-3xl border border-stone-200 p-8 bg-stone-50">
-          <p class="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">Flow</p>
-          <p class="text-5xl font-extrabold text-stone-800 mb-1">$19<span class="text-2xl font-medium text-stone-400">/mo</span></p>
-          <p class="text-stone-400 text-sm mb-8">Built for freelancers &amp; self-employed</p>
+        <div class="reveal reveal-delay-3 flex flex-col rounded-3xl border border-sienna-200 p-8 bg-white">
+          <p class="text-sm font-semibold text-sienna-400 uppercase tracking-wider mb-2">Flow</p>
+          <p class="text-5xl font-extrabold text-sienna-900 mb-1">$19<span class="text-2xl font-medium text-sienna-400">/mo</span></p>
+          <p class="text-sienna-400 text-sm mb-8">Built for freelancers &amp; self-employed</p>
           <ul class="space-y-3 flex-1 mb-8">
-            <li class="flex items-start gap-2.5 text-stone-600 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Everything in Aware</li>
-            <li class="flex items-start gap-2.5 text-stone-600 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Freelancer Mode</li>
-            <li class="flex items-start gap-2.5 text-stone-600 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Income cycle mood mapping</li>
-            <li class="flex items-start gap-2.5 text-stone-600 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Unlimited wearable devices</li>
-            <li class="flex items-start gap-2.5 text-stone-600 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Full transaction history export</li>
-            <li class="flex items-start gap-2.5 text-stone-600 text-sm"><svg class="w-5 h-5 text-sage-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Priority support</li>
+            <li class="flex items-start gap-2.5 text-sienna-600 text-sm"><svg class="w-5 h-5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Everything in Aware</li>
+            <li class="flex items-start gap-2.5 text-sienna-600 text-sm"><svg class="w-5 h-5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Freelancer Mode</li>
+            <li class="flex items-start gap-2.5 text-sienna-600 text-sm"><svg class="w-5 h-5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Income cycle mood mapping</li>
+            <li class="flex items-start gap-2.5 text-sienna-600 text-sm"><svg class="w-5 h-5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Unlimited wearable devices</li>
+            <li class="flex items-start gap-2.5 text-sienna-600 text-sm"><svg class="w-5 h-5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Full transaction history export</li>
+            <li class="flex items-start gap-2.5 text-sienna-600 text-sm"><svg class="w-5 h-5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Priority support</li>
           </ul>
-          <a href="#" class="w-full text-center bg-white border border-stone-300 hover:border-sage-400 text-stone-700 font-semibold py-3.5 rounded-2xl transition-colors">Get Flow</a>
+          <a href="#" class="w-full text-center bg-beige border border-sienna-200 hover:border-terra-400 text-sienna-700 font-semibold py-3.5 rounded-2xl transition-colors">Get Flow</a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ─── FAQ ─── -->
-  <section id="faq" class="bg-cream py-24 md:py-32">
+  <section id="faq" class="bg-white py-24 md:py-32">
     <div class="max-w-3xl mx-auto px-6">
-      <div class="text-center mb-16">
-        <span class="inline-block text-sage-600 text-sm font-semibold uppercase tracking-widest mb-3">FAQ</span>
-        <h2 class="text-4xl md:text-5xl font-bold text-stone-800 mb-4">Good questions deserve honest answers</h2>
+      <div class="text-center mb-16 reveal">
+        <span class="inline-block text-terra-600 text-sm font-semibold uppercase tracking-widest mb-3">FAQ</span>
+        <h2 class="text-4xl md:text-5xl font-bold text-sienna-900 mb-4">Good questions deserve honest answers</h2>
       </div>
 
       <div class="space-y-3" id="faq-list">
 
-        <div class="faq-item bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-stone-800 hover:text-sage-700 transition-colors">
+        <div class="reveal faq-item bg-beige rounded-2xl border border-beige-dark overflow-hidden">
+          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-sienna-800 hover:text-terra-600 transition-colors">
             <span>How does BlinkBudget detect my "mood"?</span>
-            <svg class="faq-icon w-5 h-5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <svg class="faq-icon w-5 h-5 text-sienna-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
           </button>
-          <div class="faq-answer px-6 text-stone-500 leading-relaxed text-sm">
+          <div class="faq-answer px-6 text-sienna-500 leading-relaxed text-sm">
             Initially, BlinkBudget uses spending velocity and pattern analysis — unusual transaction times, purchase categories, and amounts — to infer emotional context. With optional wearable sync, it can layer biometric signals like elevated heart rate or poor sleep to build a more accurate picture.
           </div>
         </div>
 
-        <div class="faq-item bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-stone-800 hover:text-sage-700 transition-colors">
+        <div class="reveal reveal-delay-1 faq-item bg-beige rounded-2xl border border-beige-dark overflow-hidden">
+          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-sienna-800 hover:text-terra-600 transition-colors">
             <span>Is my financial and biometric data safe?</span>
-            <svg class="faq-icon w-5 h-5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <svg class="faq-icon w-5 h-5 text-sienna-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
           </button>
-          <div class="faq-answer px-6 text-stone-500 leading-relaxed text-sm">
+          <div class="faq-answer px-6 text-sienna-500 leading-relaxed text-sm">
             Absolutely. Emotional and biometric insights are processed and stored locally on your device whenever possible. Financial data is connected via read-only bank APIs and never stored in plain text. We are SOC 2 Type II certified and never sell your data.
           </div>
         </div>
 
-        <div class="faq-item bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-stone-800 hover:text-sage-700 transition-colors">
+        <div class="reveal reveal-delay-2 faq-item bg-beige rounded-2xl border border-beige-dark overflow-hidden">
+          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-sienna-800 hover:text-terra-600 transition-colors">
             <span>Do I need a wearable to use BlinkBudget?</span>
-            <svg class="faq-icon w-5 h-5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <svg class="faq-icon w-5 h-5 text-sienna-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
           </button>
-          <div class="faq-answer px-6 text-stone-500 leading-relaxed text-sm">
+          <div class="faq-answer px-6 text-sienna-500 leading-relaxed text-sm">
             Not at all. Wearable integration is completely optional. BlinkBudget works entirely from your transaction history. The wearable data simply adds another layer of accuracy if you choose to enable it.
           </div>
         </div>
 
-        <div class="faq-item bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-stone-800 hover:text-sage-700 transition-colors">
+        <div class="reveal reveal-delay-3 faq-item bg-beige rounded-2xl border border-beige-dark overflow-hidden">
+          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-sienna-800 hover:text-terra-600 transition-colors">
             <span>How do the impulse nudges work?</span>
-            <svg class="faq-icon w-5 h-5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <svg class="faq-icon w-5 h-5 text-sienna-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
           </button>
-          <div class="faq-answer px-6 text-stone-500 leading-relaxed text-sm">
+          <div class="faq-answer px-6 text-sienna-500 leading-relaxed text-sm">
             When we detect elevated stress signals or patterns matching past emotional spending, the app surfaces a gentle check-in prompt before you complete a non-essential purchase. It's never a block — just a pause. You can always proceed, but most users said that 5-second moment made all the difference.
           </div>
         </div>
 
-        <div class="faq-item bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-stone-800 hover:text-sage-700 transition-colors">
+        <div class="reveal reveal-delay-4 faq-item bg-beige rounded-2xl border border-beige-dark overflow-hidden">
+          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-sienna-800 hover:text-terra-600 transition-colors">
             <span>What banks and apps are supported?</span>
-            <svg class="faq-icon w-5 h-5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <svg class="faq-icon w-5 h-5 text-sienna-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
           </button>
-          <div class="faq-answer px-6 text-stone-500 leading-relaxed text-sm">
+          <div class="faq-answer px-6 text-sienna-500 leading-relaxed text-sm">
             We support 12,000+ financial institutions via Plaid, including all major US banks. International support is expanding. For wearables, we integrate with Apple Watch, Garmin, Fitbit, and Whoop.
           </div>
         </div>
 
-        <div class="faq-item bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-stone-800 hover:text-sage-700 transition-colors">
+        <div class="reveal reveal-delay-5 faq-item bg-beige rounded-2xl border border-beige-dark overflow-hidden">
+          <button class="faq-btn w-full text-left flex items-center justify-between p-6 font-semibold text-sienna-800 hover:text-terra-600 transition-colors">
             <span>Can I cancel my subscription anytime?</span>
-            <svg class="faq-icon w-5 h-5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <svg class="faq-icon w-5 h-5 text-sienna-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
           </button>
-          <div class="faq-answer px-6 text-stone-500 leading-relaxed text-sm">
+          <div class="faq-answer px-6 text-sienna-500 leading-relaxed text-sm">
             Yes — cancel anytime from your account settings with no fees or penalties. If you cancel, you'll retain access until the end of your billing period. Your data can be exported or deleted on demand.
           </div>
         </div>
@@ -406,11 +456,15 @@
   </section>
 
   <!-- ─── CTA BANNER ─── -->
-  <section class="bg-sage-600 py-20">
-    <div class="max-w-3xl mx-auto px-6 text-center">
+  <section class="relative overflow-hidden bg-sienna-800 py-24">
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute -top-24 -right-24 w-96 h-96 bg-terra-600 rounded-full opacity-25 blur-3xl"></div>
+      <div class="absolute -bottom-16 -left-16 w-72 h-72 bg-sand-400 rounded-full opacity-20 blur-3xl"></div>
+    </div>
+    <div class="relative max-w-3xl mx-auto px-6 text-center reveal">
       <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-5 leading-tight">Your feelings are valid.<br/>So is your bank balance.</h2>
-      <p class="text-sage-100 text-lg mb-10 max-w-xl mx-auto">Start understanding the emotional story behind your money — for free, today.</p>
-      <a href="#pricing" class="inline-flex items-center gap-2 bg-white text-sage-700 font-bold px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-lg">
+      <p class="text-sienna-300 text-lg mb-10 max-w-xl mx-auto">Start understanding the emotional story behind your money — for free, today.</p>
+      <a href="#pricing" class="inline-flex items-center gap-2 bg-terra-500 hover:bg-terra-400 text-white font-bold px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all text-lg">
         Start for Free
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
       </a>
@@ -418,20 +472,20 @@
   </section>
 
   <!-- ─── FOOTER ─── -->
-  <footer class="bg-stone-900 text-stone-400 py-16">
+  <footer class="bg-sienna-900 text-sienna-400 py-16">
     <div class="max-w-6xl mx-auto px-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
         <div class="col-span-2 md:col-span-1">
           <div class="flex items-center gap-2 mb-4">
-            <span class="w-8 h-8 rounded-full bg-sage-500 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.21 0-4 1.343-4 3s1.79 3 4 3 4 1.343 4 3-1.79 3-4 3m0-18v2m0 14v2"/></svg>
+            <span class="w-9 h-9 rounded-xl bg-terra-500 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.21 0-4 1.343-4 3s1.79 3 4 3 4 1.343 4 3-1.79 3-4 3m0-18v2m0 14v2"/></svg>
             </span>
             <span class="text-white font-bold text-lg tracking-tight">BlinkBudget</span>
           </div>
-          <p class="text-sm leading-relaxed text-stone-500">Understand your money mood. Finance that feels human and insightful.</p>
+          <p class="text-sm leading-relaxed text-sienna-500">Understand your money mood. Finance that feels human and insightful.</p>
         </div>
         <div>
-          <p class="text-stone-200 font-semibold text-sm mb-4">Product</p>
+          <p class="text-sienna-200 font-semibold text-sm mb-4">Product</p>
           <ul class="space-y-2.5 text-sm">
             <li><a href="#features" class="hover:text-white transition-colors">Features</a></li>
             <li><a href="#pricing" class="hover:text-white transition-colors">Pricing</a></li>
@@ -440,7 +494,7 @@
           </ul>
         </div>
         <div>
-          <p class="text-stone-200 font-semibold text-sm mb-4">Company</p>
+          <p class="text-sienna-200 font-semibold text-sm mb-4">Company</p>
           <ul class="space-y-2.5 text-sm">
             <li><a href="#" class="hover:text-white transition-colors">About</a></li>
             <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
@@ -449,7 +503,7 @@
           </ul>
         </div>
         <div>
-          <p class="text-stone-200 font-semibold text-sm mb-4">Legal</p>
+          <p class="text-sienna-200 font-semibold text-sm mb-4">Legal</p>
           <ul class="space-y-2.5 text-sm">
             <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
             <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
@@ -458,7 +512,7 @@
           </ul>
         </div>
       </div>
-      <div class="border-t border-stone-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+      <div class="border-t border-sienna-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
         <p>&copy; 2026 BlinkBudget Inc. All rights reserved.</p>
         <div class="flex items-center gap-5">
           <a href="#" class="hover:text-white transition-colors" aria-label="Twitter/X">
@@ -475,25 +529,32 @@
     </div>
   </footer>
 
-  <!-- ─── FAQ SCRIPT ─── -->
+  <!-- ─── SCRIPTS ─── -->
   <script>
+    // ── FAQ accordion
     document.querySelectorAll('.faq-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const item = btn.closest('.faq-item');
+        const item   = btn.closest('.faq-item');
         const answer = item.querySelector('.faq-answer');
-        const icon = btn.querySelector('.faq-icon');
+        const icon   = btn.querySelector('.faq-icon');
         const isOpen = answer.classList.contains('open');
-
-        // close all
         document.querySelectorAll('.faq-answer.open').forEach(a => a.classList.remove('open'));
         document.querySelectorAll('.faq-icon.rotated').forEach(i => i.classList.remove('rotated'));
-
-        if (!isOpen) {
-          answer.classList.add('open');
-          icon.classList.add('rotated');
-        }
+        if (!isOpen) { answer.classList.add('open'); icon.classList.add('rotated'); }
       });
     });
+
+    // ── Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   </script>
 
 </body>
